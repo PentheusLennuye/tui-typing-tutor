@@ -1,0 +1,26 @@
+{
+    "folders": [
+        {
+            "name": "tui-typing-tutor",
+            "path": "."
+        }
+    ],
+    "settings": {
+        "python.languageServer": "Pylance",
+        "python.analysis.autoSearchPaths": true,
+        "python.defaultInterpreterPath": ".venv/bin/python",
+        "cSpell.words": [
+        ],
+        "cSpell.ignorePaths": [
+            "**/.git/objects/**",
+            "data",
+            "**.code-workspace",
+            "**.env",
+            "conf.yml",
+            "mkdocs.yml",
+            "pyproject.toml",
+            "setup/dictionaries/**"
+        ],
+        "cSpell.language": "en-ca"
+    }
+}

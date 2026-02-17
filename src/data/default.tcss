@@ -1,0 +1,32 @@
+Keyboard {
+  background: $boost;
+  margin-top: 1;
+  margin-bottom: 1;
+}
+
+Row {
+  align-horizontal: center;
+}
+
+
+.keycap {
+  background: $boost;
+  text-align: center;
+  border: round green;
+  width: 5;
+}
+
+.row {
+  width: 100%;
+}
+
+#kb_name {
+  text-align: center;
+  color: red;
+  width: 100%;
+}
+
+.hit {
+  color: black;
+  background: green;
+}

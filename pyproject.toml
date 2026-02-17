@@ -1,0 +1,213 @@
+[project]
+authors = [
+    {name = "George Cummings", email = "gmc@cummings-online.ca"}
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Information Technology",
+    "License :: OSI Approved :: Apache Software License"
+,   "Programming Language :: Python :: 3"
+]
+dependencies = ["textual (>=8.0.0,<9.0.0)"]
+description = "A TUI-based typing tutor"
+keywords = []
+name = "tui_typing_tutor"
+readme = "README.md"
+requires-python = ">=3.13,<4.0"
+version = "0.1.0"
+
+[project.urls]
+changelog = "https://github.com/pentheuslennuye/tui_typing_tutor/blob/master/CHANGELOG.md"
+documentation = "https://pentheuslennuye.github.io/tui_typing_tutor/"
+homepage = "https://pentheuslennuye.github.io/tui_typing_tutor/"
+issues = "https://github.com/pentheuslennuye/tui_typing_tutor/issues"
+repository = "https://github.com/pentheuslennuye/tui_typing_tutor.git"
+
+[tool.poetry]
+packages = [{include = "tui_typing_tutor", from = "src"}]
+
+[tool.pytest.ini_options]
+addopts = [
+    "--ignore=environments",
+    "--ignore=.venv",
+    "--ignore=tests",
+    "--import-mode=importlib"
+]
+asyncio_default_fixture_loop_scope = "session"
+cache_dir = "/tmp/pytest"
+filterwarnings = [
+  "ignore::pydantic.fields.PydanticDeprecatedSince20",
+  "ignore:DeprecationWarning"
+]
+pythonpath = [ "src" ]
+testpaths = [ "tests" ]
+
+## Linting ---------------------------------------------------------------------------------------
+# The two tools should conform to each other. Pylint for detection, Black to reformat
+# Ensure the linting Python versions match the environment
+
+[tool.pylint]
+
+[tool.pylint."MAIN"]
+analyse-fallback-blocks = false
+clear-cache-post-run = false
+fail-under = 10
+ignore = "CVS"
+ignore-patterns = "^\\.#"
+init-hook = "import sys; sys.path.append('src')"
+jobs = 1
+limit-inference-results = 100
+persistent = true
+py-version = "3.13"
+recursive = false
+source-roots = ["src"]
+unsafe-load-any-extension = false
+
+[tool.pylint."BASIC"]
+argument-naming-style = "snake_case"
+attr-naming-style = "snake_case"
+bad-names = ["foo", "bar", "baz", "toto", "tutu", "tata"]
+class-attribute-naming-style = "any"
+class-const-naming-style = "UPPER_CASE"
+class-naming-style = "PascalCase"
+const-naming-style= "UPPER_CASE"
+docstring-min-length = -1
+function-naming-style = "snake_case"
+good-names = ["i", "j", "k", "ex", "Run", "_"]
+include-naming-hint = false
+inlinevar-naming-style = "any"
+method-naming-style = "snake_case"
+module-naming-style = "snake_case"
+no-docstring-rgx = "^_"
+property-classes = "abc.abstractproperty"
+variable-naming-style = "snake_case"
+
+[tool.pylint."CLASSES"]
+check-protected-access-in-special-methods = false
+defining-attr-methods = ["__init__", "__new__", "setUp", "asyncSetUp", "__post_init__"]
+exclude-protected = ["_asdict", "_fields", "_replace", "_source", "_make", "os._exit"]
+valid-classmethod-first-arg = "cls"
+valid-metaclass-classmethod-first-arg = "mcs"
+ 
+[tool.pylint."DESIGN"]
+max-args = 5
+max-attributes = 7
+max-bool-expr = 5
+max-branches = 12
+max-locals = 15
+max-parents = 7
+max-public-methods = 20
+max-returns = 6
+max-statements = 50
+min-public-methods = 2
+
+[tool.pylint."EXCEPTIONS"]
+overgeneral-exceptions= ["builtins.BaseException", "builtins.Exception"]
+
+[tool.pylint."FORMAT"]
+#expected-line-ending-format=
+ignore-long-lines = "^\\s*(# )?<?https?://\\S+>?$"
+indent-after-paren = 4
+indent-string = '    '
+max-line-length = 99
+max-module-lines = 1000
+single-line-class-stmt = false
+single-line-if-stmt = false
+
+[tool.pylint."LOGGING"]
+logging-format-style = "old"
+logging-modules = "logging"
+
+[tool.pylint."MESSAGES CONTROL"]
+confidence=["HIGH", "CONTROL_FLOW", "INFERENCE", "INFERENCE_FAILURE", "UNDEFINED"]
+           
+disable = [
+    "raw-checker-failed", "bad-inline-option", "locally-disabled", "file-ignored",
+    "suppressed-message", "useless-suppression", "deprecated-pragma",
+    "use-symbolic-message-instead", "use-implicit-booleaness-not-comparison-to-string",
+    "use-implicit-booleaness-not-comparison-to-zero", "wrong-import-position"
+]
+
+[tool.pylint."METHOD_ARGS"]
+timeout-methods = [
+    "requests.api.delete", "requests.api.get", "requests.api.head", "requests.api.options",
+    "requests.api.patch", "requests.api.post", "requests.api.put", "requests.api.request"
+]
+
+[tool.pylint."MISCELLANEOUS"]
+notes = ["FIXME", "XXX", "TODO"]
+
+[tool.pylint."REFACTORING"]
+max-nested-blocks = 5
+never-returning-functions= ["sys.exit", "argparse.parse_error"]
+
+[tool.pylint."REPORTS"]
+evaluation = "max(0, 0 if fatal else 10.0 - ((float(5 * error + warning + refactor + convention) / statement) * 10))"
+reports = false
+score = true
+
+[tool.pylint."SIMILARITIES"]
+ignore-comments = true
+ignore-docstrings = true
+ignore-imports = true
+ignore-signatures = true
+min-similarity-lines = 4
+
+[tool.pylint."STRING"]
+check-quote-consistency = false
+check-str-concat-over-line-jumps = false
+
+[tool.pylint."TYPECHECK"]
+contextmanager-decorators = "contextlib.contextmanager"
+ignore-none = true
+ignore-on-opaque-inference = true
+ignored-checks-for-mixins = [
+    "no-member", "not-async-context-manager", "not-context-manager",
+    "attribute-defined-outside-init"
+]
+ignored-classes = ["optparse.Values", "thread._local", "_thread._local", "argparse.Namespace"]
+missing-member-hint = true
+missing-member-hint-distance = 1
+missing-member-max-choices = 1
+mixin-class-rgx = ".*[Mm]ixin"
+
+[tool.pylint."VARIABLES"]
+allow-global-unused-variables = true
+callbacks = ["cb_", "_cb"]
+dummy-variables-rgx = "_+$|(_[a-zA-Z0-9_]*[a-zA-Z0-9]+?$)|dummy|^ignored_|^unused_"
+ignored-argument-names = "_.*|^ignored_|^unused_"
+init-import = false
+redefining-builtins-modules = ["six.moves", "past.builtins", "future.builtins", "builtins", "io"]
+
+[tool.black]
+color = true
+line-length = 99
+skip-magic-trailing-comma = true
+target-version = ['py312']
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+# Items from poetry add --------------------------------------------------------------------------
+
+[dependency-groups]
+dev = [
+    "pydantic (>=2.12.5,<3.0.0)",
+    "pyyaml (>=6.0.3,<7.0.0)",
+    "pytest (>=9.0.2,<10.0.0)",
+    "pytest-cov (>=7.0.0,<8.0.0)",
+    "pytest-mock (>=3.15.1,<4.0.0)",
+    "pytest-asyncio (>=1.3.0,<2.0.0)",
+    "mkdocs (>=1.6.1,<2.0.0)",
+    "mkdocs-material (>=9.7.1,<10.0.0)",
+    "mkdocstrings (>=1.0.3,<2.0.0)",
+    "mkdocs-version-annotations (>=1.0.0,<2.0.0)",
+    "black (>=26.1.0,<27.0.0)",
+    "pylint (>=4.0.4,<5.0.0)",
+    "pydocstyle (>=6.3.0,<7.0.0)",
+    "pytest-bdd (>=8.1.0,<9.0.0)",
+    "pyenchant (>=3.3.0,<4.0.0)",
+    "textstat (>=0.7.12,<0.8.0)",
+    "jedi-language-server (>=0.46.0,<0.47.0)"
+]

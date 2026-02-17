@@ -1,0 +1,57 @@
+#!/usr/bin/env bash
+#
+# File: developer_setup/githooks/post-checkout
+#
+
+branch_name=
+source_name=
+
+get_branch_name() {
+    branch_name=$(git symbolic-ref --short HEAD)
+}
+
+improper_branch_name() {
+    echo -n "Checking branch name "
+    echo $branch_name | grep -E '^main$|^develop$|^hotfix/|^feature/|^bugfix/|^doc/|^rc/'
+    if [ $? -ne 0 ]; then
+        echo "'$branch_name' is not an acceptable branch name"
+        exit 1
+    fi
+    echo "Branch name '$branch_name' is ok."
+}
+
+get_source_branch_name() {
+    if [ `echo $branch_name | grep develop` ]; then
+        source_name="main"
+    elif [ `echo $branch_name | grep hotfix` ]; then
+        source_name="main"
+    elif [ `echo $branch_name | grep rc` ]; then
+        source_name="develop"
+    elif [ `echo $branch_name | grep feature` ]; then
+        source_name="develop"
+    elif [ `echo $branch_name | grep bugfix` ]; then
+        source_name="develop"
+    elif [ `echo $branch_name | grep doc` ]; then
+        source_name="develop"
+    else
+        source_name="stop"
+    fi
+}
+
+improper_checkout() {
+    if [ "${source_name}" == "stop" ]; then
+        echo "${branch_name} does not need a source branch check"
+        exit 0
+    fi
+    previous=$(git describe --all `git rev-parse @{-1}` | cut -d/ -f2)
+    if [ "$previous" != "${source_name}" ]; then
+        echo "Invalid gitflow. Delete this branch and recreate it from branch ${source_name}."
+        exit 2
+    fi
+}
+
+echo "Before continuing with the new branch, running tests"
+get_branch_name
+improper_branch_name || exit $?
+get_source_branch_name
+improper_checkout || exit $?
