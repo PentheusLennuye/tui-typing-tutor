@@ -1,4 +1,4 @@
-#!/usr/bim/env python3
+#!/usr/bin/env python3
 """A TUI typing exerciser in Python.
 
 tui_typing_tutor.py Copyright 2026 George Cummings
