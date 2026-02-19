@@ -8,12 +8,22 @@ Row {
   align-horizontal: center;
 }
 
+Spacebar {
+  align-horizontal: center;
+}
 
 .keycap {
   background: $boost;
   text-align: center;
   border: round green;
   width: 5;
+}
+
+.space {
+  background: $boost;
+  text-align: right;
+  border: round green;
+  width: 40;
 }
 
 .row {
@@ -27,6 +37,9 @@ Row {
 }
 
 .hit {
-  color: black;
-  background: green;
+  border: round white;
+}
+
+.letter{
+  color: #aaa;
 }

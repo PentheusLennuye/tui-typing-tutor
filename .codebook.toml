@@ -1,7 +1,10 @@
 dictionaries = ["en_gb"]
 words = [
     "alphanumerics",
+    "analyze",
     "analyzer",
+    "analyzes",
+    "analyzing",
     "ansible",
     "ansiblels",
     "antosha",
@@ -28,6 +31,7 @@ words = [
     "dap",
     "decremental",
     "dockerls",
+    "epictectus",
     "evdev",
     "expandtab",
     "fileencoding",
@@ -99,6 +103,7 @@ words = [
     "signcolumn",
     "smartcase",
     "softtabstop",
+    "spacebar",
     "splitbelow",
     "splitright",
     "stylelua",
