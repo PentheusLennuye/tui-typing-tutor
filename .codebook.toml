@@ -129,6 +129,7 @@ words = [
     "yamllint",
     "yamlls",
     "zxcvbkh",
+    "zxcvjkh",
 ]
 ignore_paths = [
     ".git/**/*",

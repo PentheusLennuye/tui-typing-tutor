@@ -40,6 +40,24 @@ Spacebar {
   border: round white;
 }
 
-.letter{
+.letter {
   color: #aaa;
+}
+
+.good {
+  color: green;
+}
+
+.bad {
+  color: red;
+}
+
+.bad_index {
+  color: black;
+  background: red;
+}
+
+.index {
+  color: black;
+  background: #aaa;
 }

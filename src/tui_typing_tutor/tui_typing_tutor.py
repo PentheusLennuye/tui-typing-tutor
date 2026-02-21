@@ -23,6 +23,7 @@ Description:
 import os
 
 from textual.app import App, ComposeResult
+from textual.binding import Binding
 from textual.containers import HorizontalGroup, VerticalGroup, VerticalScroll
 from textual.widgets import Header, Label
 
@@ -32,6 +33,9 @@ WORD_STOPS = (".", ",", ";", ":", "\t", "-", "?", " ")
 TEXT_WIDTH = 70
 
 DATA_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data")
+
+
+# pylint: disable=too-few-public-methods
 
 
 class Exercise:
@@ -59,11 +63,11 @@ class TextRow(HorizontalGroup):
         i = self.pos
         for glyph in self.text:
             if glyph == "\n":
-                glyph = "⏎"
+                glyph = "¶"
             elif glyph == " ":
                 glyph = "·"
             elif glyph == "\t":
-                glyph = " → "
+                glyph = "     "
             yield Label(content=glyph, classes="letter", id=f"g{i}")
             i += 1
 
@@ -84,25 +88,30 @@ class TextArea(VerticalGroup):
 
             text = self.text[left : left + TEXT_WIDTH]
 
-            # Newline check
-            index = text.find("\n")
-            if index > -1:
-                return left + index
-
             # Return the position of the last word stop
             index = max(map(text.rfind, WORD_STOPS))
             if index > -1:
                 return left + index
 
-            # Return the last position
+            # Return the last position if there is no word stop
             return left + TEXT_WIDTH - 1
 
-        # Ensure lines are text-wrapped
+        # Ensure lines are text-wrapped ─────────────────────────────────────────────────
         left = 0  # Left index of a string segment
         right: int  # Right index of a string segment
 
+        err = 0
         while left < len(self.text):
-            right = min(len(self.text), left + TEXT_WIDTH) - 1  # Right-index is len - 1
+            err += 1
+
+            # Each TextRow ends at the first newline, at the page width, or the end of file.
+            newline_pos = self.text[left:].find("\n") + 1
+            if newline_pos < 1:  # i.e., never found
+                newline_pos = len(self.text)
+
+            right = min(newline_pos, len(self.text), left + TEXT_WIDTH) - 1
+
+            # Ensure words are not chopped.
             if self.text[right] not in WORD_STOPS:
                 right = min(len(self.text) - 1, sentence_stop(left))
             yield TextRow(self.text[left : right + 1], left)
@@ -123,8 +132,8 @@ class GameArea(HorizontalGroup):
 
     def on_mount(self) -> None:
         """Reset scores and start."""
-        self.query_one("#g0").styles.color = "black"
-        self.query_one("#g0").styles.background = "#aaa"
+        self.query_one("#g0").remove_class("letter")
+        self.query_one("#g0").add_class("index")
 
 
 class Row(HorizontalGroup):
@@ -150,6 +159,7 @@ class Spacebar(HorizontalGroup):
     def compose(self) -> ComposeResult:
         """Create the spacebar."""
         yield Label(content="space", classes="space", id="SPCE")
+        yield Label(content="⏎", classes="space", id="RTRN")
 
 
 class Keyboard(VerticalGroup):
@@ -173,11 +183,15 @@ class TUITypingTutor(App[None]):
     """The application root window."""
 
     CSS_PATH = "../data/default.tcss"
+    BINDINGS = [
+        Binding("enter", "keypress('RTRN', '\\n')"),
+        Binding("space", "keypress('SPCE', ' ')"),
+    ]
 
     def __init__(self):
         """Initialize data structures."""
         super().__init__()
-        self.keyboard = (("ad", "qwfrbyuiop"), ("ac", "asdtgmnel;"), ("ab", "zxcvbkh,./"))
+        self.keyboard = (("ad", "qwfrbyuiop"), ("ac", "asdtgmnel;"), ("ab", "zxcvjkh,./"))
         self.last = None
         self.non_alphanumerics = {".": "full_stop", ";": "semicolon", ",": "comma", "/": "slash"}
         self.exercise: Exercise
@@ -186,7 +200,7 @@ class TUITypingTutor(App[None]):
 
     def _load_game_text(self):
         """Load the game text from file."""
-        with open(os.path.join(DATA_DIR, "epictectus_1.txt"), encoding="utf-8") as fp:
+        with open(os.path.join(DATA_DIR, "sample.txt"), encoding="utf-8") as fp:
             buffer = fp.read()
             buffer = buffer[
                 0 : min(len(buffer), (MAX_WPM * 5) + 1)
@@ -200,7 +214,7 @@ class TUITypingTutor(App[None]):
         """Set the displays."""
         yield Header()
         yield VerticalScroll(
-            GameArea(self.exercise), Keyboard("Tarmak2-DHm", keyboard=self.keyboard)
+            GameArea(self.exercise), Keyboard("GMC-Tarmak2-DHm", keyboard=self.keyboard)
         )
 
     def on_mount(self) -> None:
@@ -216,25 +230,48 @@ class TUITypingTutor(App[None]):
                         self.non_alphanumerics[glyph], f"keypress('{row[0]}{i:02d}', '{glyph}')"
                     )
                 i += 1
-        self.bind("space", "keypress('SPCE', ' ')")
 
-    def action_keypress(self, key: str, glyph: str) -> None:
+    def action_keypress(self, keycode: str, glyph: str) -> None:
         """Update keyboard visual."""
-        key_status = self.query_one(f"#{key}")
+        key = self.query_one(f"#{keycode}")
         if self.last:
             self.last.remove_class("hit")
-        self.last = key_status
-        key_status.add_class("hit")
+        self.last = key
+        key.add_class("hit")
 
         game_index = self.exercise.index
-        if glyph == self.exercise.text[game_index]:
-            self.query_one(f"#g{game_index}").styles.color = "green"
-            self.query_one(f"#g{game_index}").styles.background = "black"
-            self.exercise.index += 1
+        target = self.query_one(f"#g{game_index}")
 
+        if glyph != self.exercise.text[game_index]:
+            target.remove_class("index")
+            target.add_class("bad_index")
+            return
+
+        if target.has_class("index"):  # Not touched by badness
+            target.remove_class("index")
+            target.add_class("good")
         else:
-            self.query_one(f"#g{game_index}").styles.color = "red"
-            self.query_one(f"#g{game_index}").styles.background = "black"
+            target.remove_class("bad_index")
+            target.add_class("bad")
+
+        game_index += 1
+        if game_index >= len(self.exercise.text):
+            raise Exception("End of exercise.")
+
+        while self.exercise.text[game_index] == "\t":
+            game_index += 1
+            if game_index >= len(self.exercise.text):
+                raise Exception("End of exercise.")
+
+        # ┌────────────────────────────────────────────────────────────────────┐
+        # │ End of game if the game index >= len of the text                   │
+        # └────────────────────────────────────────────────────────────────────┘
+
+        next_target = self.query_one(f"#g{game_index}")
+        next_target.remove_class("letter")
+        next_target.add_class("index")
+
+        self.exercise.index = game_index
 
 
 if __name__ == "__main__":
